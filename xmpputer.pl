@@ -159,6 +159,12 @@ $cl->reg_cb (
 		 }
 	     },
 
+	     contact_request_subscribe => sub {
+		 my ($cl, $acc, $roster, $contact) = @_;
+		 print "subscribed by ".$contact->jid."\n";
+		 $contact->send_subscribed();
+	     },
+
 	     error => sub {
 		 my ($cl, $acc, $error) = @_;
 		 warn "Error encountered: ".$error->string."\n";
