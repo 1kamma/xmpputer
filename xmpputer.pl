@@ -105,6 +105,7 @@ my $hostname = hostname =~ s/\..*//r;
 #$cl->set_presence (undef, "alive?", 1);
 
 $cl->add_account($jid, $pw, undef, undef, {resource => "$hostname"});
+my $account = $cl->get_account($jid);
 
 $cl->reg_cb (
 	     session_ready => sub {
@@ -113,6 +114,7 @@ $cl->reg_cb (
 		 foreach my $room (@rooms) {
 		     $muc->join_room($acc->connection, $room, node_jid($acc->jid));
 		 }
+
 		 $muc->reg_cb (
 			       message => sub {
 				   my ($cl, $room, $msg, $is_echo) = @_;
@@ -186,19 +188,43 @@ sub answer {
     my $command;
 
     # echo
-    if ($msg =~ m/^\s*echo\s+(.*)\s*$/) {
+    if ($msg =~ m/^\s*echo\s+(.+)\s*$/) {
 	my $echo = $1;
-	if (acl($jid, "echo")) {
+	$command = "echo";
+	if (acl($jid, $command)) {
 	    return "$echo";
 	}
-	$command = "echo";
+    }
+
+    # leave
+    if ($msg =~ m/^\s*leave\s+(.+)\s*$/) {
+	my $rjid = $1;
+	my $command = "leave";
+	if (acl($jid, $command)) {
+	    my $room = $muc->get_room($account->connection, $rjid);
+	    if ($room) {
+		$room->send_part();
+		#return "Left $rjid";
+		return "";
+	    }
+	    return "Not in room $rjid";
+	}
+    }
+
+    # join
+    if ($msg =~ m/^\s*join\s+(.+)\s*$/) {
+	my $rjid = $1;
+	my $command = "join";
+	if (acl($jid, $command)) {
+	    $muc->join_room($account->connection, $rjid, node_jid($account->jid));
+	    return "Joined room $rjid";
+	}
     }
 
     # authorize
     # deauthorize
-    # connect
-    # disconnect
     # roll
+    # chat
 
     # nothing
     print "$jid not authorized";
