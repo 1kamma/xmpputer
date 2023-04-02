@@ -1,0 +1,4 @@
+jid = root@localhost
+passwordfile = /etc/xmpputer/password
+room = room@conference.localhost
+aclfile = /etc/xmpputer/acl
