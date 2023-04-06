@@ -102,15 +102,21 @@ $cl->add_extension ($version);
 $cl->add_extension ($muc);
 
 my $hostname = hostname =~ s/\..*//r;
-#$cl->set_presence (undef, "alive?", 1);
+my $mypriority = int(rand() * 255) - 128;
+$cl->set_presence("chat", "on-line", $mypriority);
 
+#$cl->add_account($jid, $pw, undef, undef, {resource => "$hostname.".int(rand()*1000)});
 $cl->add_account($jid, $pw, undef, undef, {resource => "$hostname"});
 my $account = $cl->get_account($jid);
 
 $cl->reg_cb (
 	     session_ready => sub {
 		 my ($cl, $acc) = @_;
-		 print "session ready (".$acc->jid.")\n";
+		 print "session ready (".$acc->jid.", p: $mypriority)\n";
+
+		 # subscribe to me (don't know if this works)
+		 $acc->connection->get_roster->get_own_contact->send_subscribe();
+
 		 foreach my $room (@rooms) {
 		     $muc->join_room($acc->connection, $room, node_jid($acc->jid));
 		 }
@@ -143,10 +149,29 @@ $cl->reg_cb (
 
 			       error => sub {
 				   my ($cl, $acc, $error) = @_;
-				   warn "Error encountered: ".$error->string."\n";
+				   warn "MUC Error encountered: ".$error->string."\n";
 				   $cv->broadcast;
 			       },
 			      );
+	     },
+
+	     presence_update => sub {
+		 my ($cl, $acc, $roster, $contact, $old, $new) = @_;
+		 print "presence_update ".($old // $new // $contact)->jid."\n";
+
+		 # check if I'm connected elsewhere, and abort
+		 return unless $new;
+
+		 my $bare = bare_jid($acc->jid);
+		 if (bare_jid($new->jid) eq $bare
+		     and $new->jid ne $acc->jid
+		     and $new->show and $new->show eq "chat"
+		    ) {
+		     if ($new->priority >= $mypriority) {
+			 print "Connected elsewhere ".$new->jid."(".$new->priority." >= ".$mypriority."), aborting\n";
+			 $cl->disconnect();
+		     }
+		 }
 	     },
 
 	     message => sub {
@@ -163,8 +188,11 @@ $cl->reg_cb (
 
 	     contact_request_subscribe => sub {
 		 my ($cl, $acc, $roster, $contact) = @_;
-		 print "subscribed by ".$contact->jid."\n";
-		 $contact->send_subscribed();
+		 my $subscription = $contact->subscription;
+		 print "subscribe request by ".$contact->jid." (current: $subscription)\n";
+		 if ($subscription ne "both") {
+		     $contact->send_subscribed();
+		 }
 	     },
 
 	     error => sub {
@@ -173,14 +201,23 @@ $cl->reg_cb (
 		 $cv->broadcast;
 	     },
 
-	     #   disconnect => sub {
-	     #      warn "Got disconnected: [@_]\n";
-	     #      $j->broadcast;
-	     #   },
+	     #connect => sub {
+	     #    print "connect\n";
+	     #    use Data::Dumper; print Dumper([map {ref $_} @_]);
+	     #},
+
+	     #disconnect => sub {
+	     #    print "disconnect\n";
+	     #    use Data::Dumper; print Dumper([map {ref $_} @_]);
+	     #    $cv->broadcast;
+	     #},
 	    );
 
 $cl->start;
 $cv->wait;
+
+print "bye bye!\n";
+exit 0;
 
 sub answer {
     my ($msg, $from) = @_;
