@@ -5,13 +5,14 @@ use strict;
 use warnings;
 
 use List::Util qw(any);
-use Sys::Hostname;
+use Games::Dice qw(roll roll_array);
 use Getopt::Long;
+use Sys::Hostname;
+use AnyEvent::XMPP::Util qw/node_jid res_jid split_jid bare_jid/;
 use AnyEvent::XMPP::Client;
+use AnyEvent::XMPP::Ext::MUC;
 use AnyEvent::XMPP::Ext::Disco;
 use AnyEvent::XMPP::Ext::Version;
-use AnyEvent::XMPP::Ext::MUC;
-use AnyEvent::XMPP::Util qw/node_jid res_jid split_jid bare_jid/;
 
 binmode STDOUT, ":utf8";
 
@@ -258,9 +259,23 @@ sub answer {
 	}
     }
 
+    # roll
+    if ($msg =~ m/^\s*roll(a?)\s+(.+)\s*$/) {
+	my $array = $1;
+	my $dice = $2;
+	my $command = "roll";
+	if (acl($jid, $command)) {
+	    if ($array) {
+		my @throws = roll_array $dice;
+		return join(" + ", @throws)." = ".List::Util::sum(@throws);
+	    } else {
+		return roll $dice;
+	    }
+	}
+    }
+
     # authorize
     # deauthorize
-    # roll
     # chat
 
     # nothing
