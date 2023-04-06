@@ -275,7 +275,29 @@ sub answer {
     }
 
     # authorize
+    if ($msg =~ m/^\s*authorize\s+([^\s]+)\s+(.+)\s*$/) {
+	my $who = $1;
+	my $what = $2;
+	my $command = "authorize";
+	if (acl($jid, $command)) {
+	    $acl{$what} //= [];
+	    push @{$acl{$what}}, $who;
+	    return "$who authorized to $what";
+	}
+    }
+
     # deauthorize
+    if ($msg =~ m/^\s*deauthorize\s+([^\s]+)\s+(.+)\s*$/) {
+	my $who = $1;
+	my $what = $2;
+	my $command = "deauthorize";
+	if (acl($jid, $command)) {
+	    $acl{$what} //= [];
+	    $acl{$what} = [grep {$_ ne $who} @{$acl{$what}}];
+	    return "$who deauthorized from $what";
+	}
+    }
+
     # chat
 
     # nothing
