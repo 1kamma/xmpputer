@@ -14,6 +14,9 @@ use AnyEvent::XMPP::Ext::MUC;
 use AnyEvent::XMPP::Ext::Disco;
 use AnyEvent::XMPP::Ext::Version;
 
+use XMPputer::ACL;
+use XMPputer::Commands;
+
 $| = 1;
 binmode STDOUT, ":utf8";
 
@@ -79,16 +82,6 @@ if (not $pw and $pwfile) {
 }
 push @rooms, $in_room if $in_room;
 
-my %acl;
-open(ACL, "<$aclfile") or die "can't read acl file";
-foreach my $acl (<ACL>) {
-    my ($key, $value) = split /\s+/, $acl, 2;
-    chomp($value);
-    $acl{$key} //= [];
-    push @{$acl{$key}}, $value;
-}
-close(ACL);
-
 my $cv      = AnyEvent->condvar;
 my $cl      = AnyEvent::XMPP::Client->new(debug => $debug);
 my $disco   = AnyEvent::XMPP::Ext::Disco->new;
@@ -110,6 +103,10 @@ $cl->set_presence("chat", "on-line", $mypriority);
 #$cl->add_account($jid, $pw, undef, undef, {resource => "$hostname.".int(rand()*1000)});
 $cl->add_account($jid, $pw, undef, undef, {resource => "$hostname"});
 my $account = $cl->get_account($jid);
+
+my $acl = XMPputer::ACL->new();
+my $commands = XMPputer::Commands->new(acl => $acl, muc => $muc, account => $account);
+$acl->read_file($aclfile);
 
 $cl->reg_cb (
 	     session_ready => sub {
@@ -134,7 +131,7 @@ $cl->reg_cb (
 				   if ($msg->any_body =~ /^\s*\Qcomputer\E:\s+(.*?)\s*$/) {
 				       print "room message: \"$msg\" from \"".res_jid($msg->from)."\" in \"".$room->jid."\"\n";
 				       my $from = $room->get_user(res_jid($msg->from))->real_jid;
-				       my $reply = answer($1, $from);
+				       my $reply = $commands->answer($1, $from);
 				       if ($reply) {
 					   my $repl = $msg->make_reply;
 					   $repl->add_body($reply);
@@ -180,7 +177,7 @@ $cl->reg_cb (
 		 my ($cl, $acc, $msg) = @_;
 
 		 print "message: '".$msg->any_body."' from '".$msg->from."'\n";
-		 my $reply = answer($msg->any_body, $msg->from);
+		 my $reply = $commands->answer($msg->any_body, $msg->from);
 		 if ($reply) {
 		     my $repl = $msg->make_reply;
 		     $repl->add_body($reply);
@@ -220,98 +217,3 @@ $cv->wait;
 
 print "bye bye!\n";
 exit 0;
-
-sub answer {
-    my ($msg, $from) = @_;
-    my $jid = bare_jid($from);
-    my $command;
-
-    # echo
-    if ($msg =~ m/^\s*echo\s+(.+)\s*$/) {
-	my $echo = $1;
-	$command = "echo";
-	if (acl($jid, $command)) {
-	    return "$echo";
-	}
-    }
-
-    # leave
-    if ($msg =~ m/^\s*leave\s+(.+)\s*$/) {
-	my $rjid = $1;
-	my $command = "leave";
-	if (acl($jid, $command)) {
-	    my $room = $muc->get_room($account->connection, $rjid);
-	    if ($room) {
-		$room->send_part();
-		#return "Left $rjid";
-		return "";
-	    }
-	    return "Not in room $rjid";
-	}
-    }
-
-    # join
-    if ($msg =~ m/^\s*join\s+(.+)\s*$/) {
-	my $rjid = $1;
-	my $command = "join";
-	if (acl($jid, $command)) {
-	    $muc->join_room($account->connection, $rjid, node_jid($account->jid));
-	    return "Joined room $rjid";
-	}
-    }
-
-    # roll
-    if ($msg =~ m/^\s*roll(a?)\s+(.+)\s*$/) {
-	my $array = $1;
-	my $dice = $2;
-	my $command = "roll";
-	if (acl($jid, $command)) {
-	    if ($array) {
-		my @throws = roll_array $dice;
-		return join(" + ", @throws)." = ".List::Util::sum(@throws);
-	    } else {
-		return roll $dice;
-	    }
-	}
-    }
-
-    # authorize
-    if ($msg =~ m/^\s*authorize\s+([^\s]+)\s+(.+)\s*$/) {
-	my $who = $1;
-	my $what = $2;
-	my $command = "authorize";
-	if (acl($jid, $command)) {
-	    $acl{$what} //= [];
-	    push @{$acl{$what}}, $who;
-	    return "$who authorized to $what";
-	}
-    }
-
-    # deauthorize
-    if ($msg =~ m/^\s*deauthorize\s+([^\s]+)\s+(.+)\s*$/) {
-	my $who = $1;
-	my $what = $2;
-	my $command = "deauthorize";
-	if (acl($jid, $command)) {
-	    $acl{$what} //= [];
-	    $acl{$what} = [grep {$_ ne $who} @{$acl{$what}}];
-	    return "$who deauthorized from $what";
-	}
-    }
-
-    # chat
-
-    # nothing
-    print "$jid not authorized";
-    print " to \"$command\"" if $command;
-    print "\n";
-    return "Not Authorized";
-}
-
-sub acl {
-    my $jid = shift;
-    my $command = shift;
-    $acl{$command} //= [];
-    $acl{ALL} //= [];
-    return any {$jid eq $_ or "ALL" eq $_} (@{$acl{$command}}, @{$acl{ALL}});
-}
