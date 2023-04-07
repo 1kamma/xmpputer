@@ -208,11 +208,11 @@ $cl->reg_cb (
 	     #    use Data::Dumper; print Dumper([map {ref $_} @_]);
 	     #},
 
-	     #disconnect => sub {
-	     #    print "disconnect\n";
-	     #    use Data::Dumper; print Dumper([map {ref $_} @_]);
-	     #    $cv->broadcast;
-	     #},
+	     disconnect => sub {
+		 my ($cl, $acc, @rest) = @_;
+	         print "disconnect (".$acc->jid.")\n";
+	         $cv->broadcast;
+	     },
 	    );
 
 $cl->start;
