@@ -14,6 +14,7 @@ use AnyEvent::XMPP::Ext::MUC;
 use AnyEvent::XMPP::Ext::Disco;
 use AnyEvent::XMPP::Ext::Version;
 
+$| = 1;
 binmode STDOUT, ":utf8";
 
 # vars
