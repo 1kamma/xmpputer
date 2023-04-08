@@ -16,7 +16,7 @@ sub new {
 sub match {
     my ($self, $msg) = @_;
 
-    if ($msg =~ m/^\s*(de)?authorize\s+[^\s]+\s+[^\s]+\s*$/) {
+    if ($msg =~ m/^\s*(de)?authorize\s+[^\s]+\s+[^\s]+\s*$/i) {
 	return $self;
     }
     return undef;
@@ -26,7 +26,7 @@ sub answer {
     my $self = shift;
     my $params = shift;
 
-    if ($params->msg =~ m/^\s*(de)?authorize\s+([^\s]+)\s+([^\s]+)\s*$/) {
+    if ($params->msg =~ m/^\s*(de)?authorize\s+([^\s]+)\s+([^\s]+)\s*$/i) {
 	my $deauth = $1;
 	my $who = $2;
 	my $what = $3;
@@ -50,12 +50,12 @@ sub allow {
     my $self = shift;
     my $params = shift;
 
-    return $params->acl->allow($params->msg =~ s/^\s*((?:de)?authorize)\s+.*/$1/r, $params);
+    return $params->acl->allow(lc($params->msg =~ s/^\s*((?:de)?authorize)\s+.*/$1/ri), $params);
 }
 
 sub name {
     my ($self, $msg) = @_;
-    return $msg =~ s/^\s*([^\s]+).*/$1/r;
+    return lc($msg =~ s/^\s*([^\s]+).*/$1/ri);
 }
 
 1;

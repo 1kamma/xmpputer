@@ -12,7 +12,7 @@ sub new {
 sub match {
     my ($self, $msg) = @_;
 
-    if ($msg =~ m/^\s*echo\s+[^\s]+/) {
+    if ($msg =~ m/^\s*echo\s+[^\s]+/i) {
 	return $self;
     }
     return undef;
@@ -22,7 +22,7 @@ sub answer {
     my $self = shift;
     my $params = shift;
 
-    if ($params->msg =~ m/^\s*echo\s+(.+)\s*$/) {
+    if ($params->msg =~ m/^\s*echo\s+(.+)\s*$/i) {
 	return "$1";
     }
 

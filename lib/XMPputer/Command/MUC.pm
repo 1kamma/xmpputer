@@ -17,7 +17,7 @@ sub new {
 sub match {
     my ($self, $msg) = @_;
 
-    if ($msg =~ m/^\s*join\s+[^\s]+\s*$/ or $msg =~ m/^\s*leave(?:\s+[^\s]+\s*)?$/) {
+    if ($msg =~ m/^\s*join\s+[^\s]+\s*$/i or $msg =~ m/^\s*leave(?:\s+[^\s]+\s*)?$/i) {
 	return $self;
     }
     return undef;
@@ -27,7 +27,7 @@ sub answer {
     my $self = shift;
     my $params = shift;
 
-    if ($params->msg =~ m/^\s*(join|leave)(?:\s+([^\s]+)\s*)?$/) {
+    if ($params->msg =~ m/^\s*(join|leave)(?:\s+([^\s]+)\s*)?$/i) {
 	my $what = $1;
 	my $rjid = $2;
 	if ($what eq "join") {
@@ -57,12 +57,12 @@ sub allow {
     my $self = shift;
     my $params = shift;
 
-    return $params->acl->allow($params->msg =~ s/^\s*(join|leave).*/$1/r, $params);
+    return $params->acl->allow(lc($params->msg =~ s/^\s*(join|leave).*/$1/ir), $params);
 }
 
 sub name {
     my ($self, $msg) = @_;
-    return $msg =~ s/^\s*([^\s]+).*/$1/r;
+    return lc($msg =~ s/^\s*([^\s]+).*/$1/ri);
 }
 
 1;
