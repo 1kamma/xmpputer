@@ -17,7 +17,7 @@ sub new {
 sub match {
     my ($self, $msg) = @_;
 
-    if ($msg =~ m/^\s*(?:join|leave)\s+[^\s]+/) {
+    if ($msg =~ m/^\s*join\s+[^\s]+\s*$/ or $msg =~ m/^\s*leave(?:\s+[^\s]+\s*)?$/) {
 	return $self;
     }
     return undef;
@@ -27,13 +27,19 @@ sub answer {
     my $self = shift;
     my $params = shift;
 
-    if ($params->msg =~ m/^\s*(join|leave)\s+([^\s]+)\s*$/) {
+    if ($params->msg =~ m/^\s*(join|leave)(?:\s+([^\s]+)\s*)?$/) {
 	my $what = $1;
 	my $rjid = $2;
 	if ($what eq "join") {
 	    $self->{muc}->join_room($self->{account}->connection, $rjid, node_jid($self->{account}->jid));
 	    return "Joined room $rjid";
 	} else {
+	    unless ($rjid) {
+		$rjid = bare_jid($params->room_member) if $params->room_member;
+	    }
+	    unless ($rjid) {
+		return "which room?\n";
+	    }
 	    my $room = $self->{muc}->get_room($self->{account}->connection, $rjid);
 	    if ($room) {
 		$room->send_part();
