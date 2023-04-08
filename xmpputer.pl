@@ -141,6 +141,7 @@ $cl->reg_cb (
 					   my $repl = $msg->make_reply;
 					   $repl->add_body($reply);
 					   $repl->send;
+					   print "replied (to ".$repl->to."): $reply\n";
 				       }
 				   }
 			       },
@@ -191,6 +192,7 @@ $cl->reg_cb (
 		     my $repl = $msg->make_reply;
 		     $repl->add_body($reply);
 		     $repl->send;
+		     print "replied (to ".$repl->to."): $reply\n";
 		 }
 	     },
 
