@@ -42,7 +42,7 @@ sub allow {
     my $self = shift;
     my $params = shift;
 
-    return $params->acl->allow($params->jid, "roll");
+    return $params->acl->allow("roll", $params);
 }
 
 sub name {

@@ -134,6 +134,7 @@ $cl->reg_cb (
 				       my $params = XMPputer::Commands::Parameters->new(msg => $1,
 											from => $room->get_user(res_jid($msg->from))->real_jid,
 											acl => $acl,
+											room_member => $msg->from,
 										       );
 				       my $reply = $commands->answer($params);
 				       if ($reply) {

@@ -49,7 +49,7 @@ sub answer {
     }
 
     unless (@commands) {
-	print $params->jid." not authorized\n";
+	print $params->room_member_withor_jid." not authorized\n";
 	return "Not Authorized";
     } elsif (@commands > 1) {
 	...
@@ -58,7 +58,7 @@ sub answer {
 	if ($cmd->allow($params)) {
 	    return $commands[0]->answer($params);
 	} else {
-	    print $params->jid." not authorized to ".$cmd->name($params->msg)."\n";
+	    print $params->room_member_withor_jid." not authorized to ".$cmd->name($params->msg)."\n";
 	    return "Not Authorized";
 	}
     }

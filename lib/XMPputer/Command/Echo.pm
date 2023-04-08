@@ -33,7 +33,7 @@ sub allow {
     my $self = shift;
     my $params = shift;
 
-    return $params->acl->allow($params->jid, "echo");
+    return $params->acl->allow("echo", $params);
 }
 
 sub name {

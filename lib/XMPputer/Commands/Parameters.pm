@@ -37,4 +37,18 @@ sub acl {
     return $self->{_acl};
 }
 
+sub room_member {
+    my $self = shift;
+    return $self->{_room_member};
+}
+
+sub room_member_withor_jid {
+    my $self = shift;
+    if ($self->room_member) {
+	return $self->room_member." (".$self->jid.")";
+    } else {
+	return $self->jid
+    }
+}
+
 1;

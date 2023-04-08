@@ -51,7 +51,7 @@ sub allow {
     my $self = shift;
     my $params = shift;
 
-    return $params->acl->allow($params->jid, $params->msg =~ s/^\s*(join|leave).*/$1/r);
+    return $params->acl->allow($params->msg =~ s/^\s*(join|leave).*/$1/r, $params);
 }
 
 sub name {

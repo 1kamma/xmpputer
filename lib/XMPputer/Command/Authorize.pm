@@ -3,6 +3,8 @@ package XMPputer::Command::Authorize;
 use warnings;
 use strict;
 
+use AnyEvent::XMPP::Util qw/node_jid res_jid split_jid bare_jid/;
+
 sub new {
     my $cls = shift;
     my %args = @_;
@@ -29,6 +31,9 @@ sub answer {
 	my $who = $2;
 	my $what = $3;
 	$self->{acl}{acl}{$what} //= [];
+	if ($params->room_member and index($who, "@") < 0) {
+	    $who = join("/", bare_jid($params->room_member), $who);
+	}
 	if ($deauth) {
 	    $self->{acl}{acl}{$what} = [grep {$_ ne $who} @{$self->{acl}{acl}{$what}}];
 	    return "$who deauthorized from $what";
@@ -45,7 +50,7 @@ sub allow {
     my $self = shift;
     my $params = shift;
 
-    return $params->acl->allow($params->jid, $params->msg =~ s/^\s*((?:de)?authorize)\s+.*/$1/r);
+    return $params->acl->allow($params->msg =~ s/^\s*((?:de)?authorize)\s+.*/$1/r, $params);
 }
 
 sub name {

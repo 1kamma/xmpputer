@@ -28,10 +28,14 @@ sub read_file {
 }
 
 sub allow {
-    my ($self, $jid, $command) = @_;
+    my ($self, $command, $params) = @_;
 
     $self->{acl}{$command} //= [];
-    return any {$jid eq $_ or "ALL" eq $_} (@{$self->{acl}{$command}}, @{$self->{acl}{ALL}});
+    return any { 0
+		   or $params->jid eq $_
+		   or "ALL" eq $_
+		   or ($params->room_member and $params->room_member eq $_)
+	       } (@{$self->{acl}{$command}}, @{$self->{acl}{ALL}});
 }
 
 1;
