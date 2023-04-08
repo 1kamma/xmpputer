@@ -42,6 +42,16 @@ sub room_member {
     return $self->{_room_member};
 }
 
+sub muc {
+    my $self = shift;
+    return $self->{_muc};
+}
+
+sub account {
+    my $self = shift;
+    return $self->{_account};
+}
+
 sub room_member_withor_jid {
     my $self = shift;
     if ($self->room_member) {

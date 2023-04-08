@@ -9,8 +9,6 @@ sub new {
     my $cls = shift;
     my %args = @_;
     my $self = bless {}, $cls;
-    $self->{muc} = $args{muc};
-    $self->{account} = $args{account};
     return $self;
 }
 
@@ -31,7 +29,7 @@ sub answer {
 	my $what = $1;
 	my $rjid = $2;
 	if ($what eq "join") {
-	    $self->{muc}->join_room($self->{account}->connection, $rjid, node_jid($self->{account}->jid));
+	    $params->muc->join_room($params->account->connection, $rjid, node_jid($params->account->jid));
 	    return "Joined room $rjid";
 	} else {
 	    unless ($rjid) {
@@ -40,7 +38,7 @@ sub answer {
 	    unless ($rjid) {
 		return "which room?\n";
 	    }
-	    my $room = $self->{muc}->get_room($self->{account}->connection, $rjid);
+	    my $room = $params->muc->get_room($params->account->connection, $rjid);
 	    if ($room) {
 		$room->send_part();
 		#return "Left $rjid"; only outside room

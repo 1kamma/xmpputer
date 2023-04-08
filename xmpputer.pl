@@ -106,7 +106,7 @@ $cl->add_account($jid, $pw, undef, undef, {resource => "$hostname"});
 my $account = $cl->get_account($jid);
 
 my $acl = XMPputer::ACL->new();
-my $commands = XMPputer::Commands->new(acl => $acl, muc => $muc, account => $account);
+my $commands = XMPputer::Commands->new();
 $acl->read_file($aclfile);
 
 $cl->reg_cb (
@@ -134,6 +134,8 @@ $cl->reg_cb (
 				       my $params = XMPputer::Commands::Parameters->new(msg => $1,
 											from => $room->get_user(res_jid($msg->from))->real_jid,
 											acl => $acl,
+											muc => $muc,
+											account => $account,
 											room_member => $msg->from,
 										       );
 				       my $reply = $commands->answer($params);
@@ -186,6 +188,8 @@ $cl->reg_cb (
 		 my $params = XMPputer::Commands::Parameters->new(msg => $msg->any_body,
 								  from => $msg->from,
 								  acl => $acl,
+								  muc => $muc,
+								  account => $account,
 								 );
 		 my $reply = $commands->answer($params);
 		 if ($reply) {

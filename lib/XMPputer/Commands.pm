@@ -19,9 +19,6 @@ sub _init {
     my @cmds;
 
     $self->{cmds} = [];
-    $self->{acl} = $args{acl};
-    $self->{muc} = $args{muc};
-    $self->{account} = $args{account};
 
     find({wanted => sub {
 	      $_ =~ m/\.pm$/ and $File::Find::name =~ s,.*/XMPputer/Command/,, and push @cmds, $File::Find::name;
@@ -33,7 +30,7 @@ sub _init {
         eval {require "XMPputer/Command/$cmdfile"};
 	die if ($@);
 	my $cmd;
-	eval "\$cmd = XMPputer::Command::${name}->new(muc => \$self->{muc}, account => \$self->{account}, acl => \$self->{acl})";
+	eval "\$cmd = XMPputer::Command::${name}->new()";
 	next if ($@);
 	push @{$self->{cmds}}, $cmd;
     }
