@@ -21,9 +21,10 @@ sub match {
 }
 
 sub answer {
-    my ($self, $msg, $from) = @_;
+    my $self = shift;
+    my $params = shift;
 
-    if ($msg =~ m/^\s*(de)?authorize\s+([^\s]+)\s+([^\s]+)\s*$/) {
+    if ($params->msg =~ m/^\s*(de)?authorize\s+([^\s]+)\s+([^\s]+)\s*$/) {
 	my $deauth = $1;
 	my $who = $2;
 	my $what = $3;
@@ -41,9 +42,10 @@ sub answer {
 }
 
 sub allow {
-    my ($self, %args) = @_;
+    my $self = shift;
+    my $params = shift;
 
-    return $args{acl}->allow($args{jid}, "echo");
+    return $params->acl->allow($params->jid, $params->msg =~ s/^\s*((?:de)?authorize)\s+.*/$1/r);
 }
 
 sub name {

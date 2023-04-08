@@ -24,9 +24,10 @@ sub match {
 }
 
 sub answer {
-    my ($self, $msg, $from) = @_;
+    my $self = shift;
+    my $params = shift;
 
-    if ($msg =~ m/^\s*(join|leave)\s+([^\s]+)\s*$/) {
+    if ($params->msg =~ m/^\s*(join|leave)\s+([^\s]+)\s*$/) {
 	my $what = $1;
 	my $rjid = $2;
 	if ($what eq "join") {
@@ -47,9 +48,10 @@ sub answer {
 }
 
 sub allow {
-    my ($self, %args) = @_;
+    my $self = shift;
+    my $params = shift;
 
-    return $args{acl}->allow($args{jid}, $args{msg} =~ s/^\s*(join|leave).*/$1/r);
+    return $params->acl->allow($params->jid, $params->msg =~ s/^\s*(join|leave).*/$1/r);
 }
 
 sub name {

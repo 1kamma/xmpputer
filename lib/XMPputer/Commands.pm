@@ -40,26 +40,25 @@ sub _init {
 }
 
 sub answer {
-    my ($self, $msg, $from) = @_;
-    my $jid = bare_jid($from);
+    my ($self, $params) = @_;
     my $reply;
     my @commands;
 
     foreach my $cmd (@{$self->{cmds}}) {
-	push @commands, $cmd->match($msg) // ();
+	push @commands, $cmd->match($params->msg) // ();
     }
 
     unless (@commands) {
-	print "$jid not authorized\n";
+	print $params->jid." not authorized\n";
 	return "Not Authorized";
     } elsif (@commands > 1) {
 	...
     } else {
 	my $cmd = $commands[0];
-	if ($cmd->allow(msg => $msg, jid => $jid, from => $from, acl => $self->{acl})) {
-	    return $commands[0]->answer($msg, $from);
+	if ($cmd->allow($params)) {
+	    return $commands[0]->answer($params);
 	} else {
-	    print "$jid not authorized to ".$cmd->name($msg)."\n";
+	    print $params->jid." not authorized to ".$cmd->name($params->msg)."\n";
 	    return "Not Authorized";
 	}
     }

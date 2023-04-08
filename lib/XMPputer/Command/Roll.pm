@@ -21,9 +21,10 @@ sub match {
 }
 
 sub answer {
-    my ($self, $msg, $from) = @_;
+    my $self = shift;
+    my $params = shift;
 
-    if ($msg =~ m/^\s*roll(a?)\s+([^\s].*?)\s*$/) {
+    if ($params->msg =~ m/^\s*roll(a?)\s+([^\s].*?)\s*$/) {
 	my $array = $1;
 	my $dice = $2;
 	if ($array) {
@@ -38,9 +39,10 @@ sub answer {
 }
 
 sub allow {
-    my ($self, %args) = @_;
+    my $self = shift;
+    my $params = shift;
 
-    return $args{acl}->allow($args{jid}, "roll");
+    return $params->acl->allow($params->jid, "roll");
 }
 
 sub name {

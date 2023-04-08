@@ -19,9 +19,10 @@ sub match {
 }
 
 sub answer {
-    my ($self, $msg, $from) = @_;
+    my $self = shift;
+    my $params = shift;
 
-    if ($msg =~ m/^\s*echo\s+(.+)\s*$/) {
+    if ($params->msg =~ m/^\s*echo\s+(.+)\s*$/) {
 	return "$1";
     }
 
@@ -29,9 +30,10 @@ sub answer {
 }
 
 sub allow {
-    my ($self, %args) = @_;
+    my $self = shift;
+    my $params = shift;
 
-    return $args{acl}->allow($args{jid}, "echo");
+    return $params->acl->allow($params->jid, "echo");
 }
 
 sub name {

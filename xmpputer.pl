@@ -16,6 +16,7 @@ use AnyEvent::XMPP::Ext::Version;
 
 use XMPputer::ACL;
 use XMPputer::Commands;
+use XMPputer::Commands::Parameters;
 
 $| = 1;
 binmode STDOUT, ":utf8";
@@ -130,8 +131,11 @@ $cl->reg_cb (
 				   # my $mynick = res_jid ($room->nick_jid);
 				   if ($msg->any_body =~ /^\s*\Qcomputer\E:\s+(.*?)\s*$/) {
 				       print "room message: \"$msg\" from \"".res_jid($msg->from)."\" in \"".$room->jid."\"\n";
-				       my $from = $room->get_user(res_jid($msg->from))->real_jid;
-				       my $reply = $commands->answer($1, $from);
+				       my $params = XMPputer::Commands::Parameters->new(msg => $1,
+											from => $room->get_user(res_jid($msg->from))->real_jid,
+											acl => $acl,
+										       );
+				       my $reply = $commands->answer($params);
 				       if ($reply) {
 					   my $repl = $msg->make_reply;
 					   $repl->add_body($reply);
@@ -177,7 +181,11 @@ $cl->reg_cb (
 		 my ($cl, $acc, $msg) = @_;
 
 		 print "message: '".$msg->any_body."' from '".$msg->from."'\n";
-		 my $reply = $commands->answer($msg->any_body, $msg->from);
+		 my $params = XMPputer::Commands::Parameters->new(msg => $msg->any_body,
+								  from => $msg->from,
+								  acl => $acl,
+								 );
+		 my $reply = $commands->answer($params);
 		 if ($reply) {
 		     my $repl = $msg->make_reply;
 		     $repl->add_body($reply);
