@@ -4,6 +4,7 @@ use warnings;
 use strict;
 
 use List::Util qw(any);
+use AnyEvent::XMPP::Util qw/node_jid res_jid split_jid bare_jid/;
 
 sub new {
     my $cls = shift;
@@ -35,6 +36,7 @@ sub allow {
 		   or $params->jid eq $_
 		   or "ALL" eq $_
 		   or ($params->room_member and $params->room_member eq $_)
+		   or ($params->room_member and bare_jid($params->room_member)."/*" eq $_)
 	       } (@{$self->{acl}{$command}}, @{$self->{acl}{ALL}});
 }
 
