@@ -141,7 +141,7 @@ $cl->reg_cb (
 				       my $reply = $commands->answer($params);
 				       if ($reply) {
 					   my $repl = $msg->make_reply;
-					   $repl->add_body($reply);
+					   $repl->add_body(join("\n", ("> ".$params->msg, $reply)));
 					   $repl->send;
 					   print "replied (to ".$repl->to."): $reply\n";
 				       }
