@@ -55,7 +55,14 @@ sub allow {
     my $self = shift;
     my $params = shift;
 
-    return $params->acl->allow(lc($params->msg =~ s/^\s*(join|leave).*/$1/ir), $params);
+    my ($cmd, $room) = $params->msg =~ m/^\s*(join|leave)(?:\s+([^\s]+))?\s*$/;
+    $cmd = lc($cmd);
+    $room = bare_jid($params->room_member) if not $room and $params->room_member;
+
+    return (0
+	    or $params->acl->allow($cmd, $params)
+	    or ($room and $params->acl->allow("$cmd/$room", $params))
+	   );
 }
 
 sub name {
