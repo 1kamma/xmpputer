@@ -5,9 +5,11 @@ use strict;
 
 use AnyEvent::XMPP::Util qw/node_jid res_jid split_jid bare_jid/;
 
+use base "XMPputer::Command";
+
 sub new {
     my $cls = shift;
-    my $self = bless {}, $cls;
+    my $self = $cls->SUPER::new(@_);
     return $self;
 }
 

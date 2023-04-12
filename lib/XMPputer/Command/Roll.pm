@@ -5,9 +5,11 @@ use strict;
 
 use Games::Dice qw(roll roll_array);
 
+use base "XMPputer::Command";
+
 sub new {
     my $cls = shift;
-    my $self = bless {}, $cls;
+    my $self = $cls->SUPER::new(@_);
     return $self;
 }
 
