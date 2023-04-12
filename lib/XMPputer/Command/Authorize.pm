@@ -53,6 +53,24 @@ sub allow {
     return $params->acl->allow(lc($params->msg =~ s/^\s*((?:de)?authorize)\s+.*/$1/ri), $params);
 }
 
+sub help {
+    my $self = shift;
+    my $params = shift;
+    my @res;
+
+    my $params2 = $params->clone(msg => "authorize aaa bbb");
+    if ($self->allow($params2)) {
+	push @res, "authorize <user> <cmd> - authorize <user> to use <cmd>";
+    }
+
+    $params2 = $params->clone(msg => "deauthorize aaa bbb");
+    if ($self->allow($params2)) {
+	push @res, "deauthorize <user> <cmd> - remove <user> authorization to use <cmd>";
+    }
+
+    return @res ? @res : "";
+}
+
 sub name {
     my ($self, $msg) = @_;
     return lc($msg =~ s/^\s*([^\s]+).*/$1/ri);

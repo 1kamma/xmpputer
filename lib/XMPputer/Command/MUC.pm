@@ -66,6 +66,46 @@ sub allow {
 	   );
 }
 
+sub help {
+    my $self = shift;
+    my $params = shift;
+    my @res;
+    my $have_join = 0;
+    my $have_leave = 0;
+
+    my @cmds = $params->acl->auths($params);
+    foreach my $cmd (@cmds) {
+	if ($cmd eq "join") {
+	    push @res, "join <room> - join <room>";
+	    $have_join = 1;
+	} elsif ($cmd =~ m/^join\/(.*)/) {
+	    push @res, "join $1 - join $1";
+	} elsif ($cmd eq "leave") {
+	    push @res, "leave <room> - leave <room>";
+	    $have_leave = 1;
+	} elsif ($cmd =~ m/^leave\/(.*)/) {
+	    push @res, "leave $1 - leave $1";
+	}
+    }
+
+    if ($have_join) {
+	@res = grep {$_ !~ m/^join/ or $_ =~ m/^join <room>/} @res
+    }
+    if ($have_leave) {
+	@res = grep {$_ !~ m/^leave/ or $_ =~ m/^leave <room>/} @res
+    }
+
+    if ($params->room_member) {
+	my $rjid = bare_jid($params->room_member);
+	if ($have_leave or grep {$_ eq "leave/$rjid"} @cmds) {
+	    @res = grep {$_ !~ m/^leave $rjid /} @res;
+	    push @res, "leave - leave this room ($rjid)";
+	}
+    }
+
+    return @res ? @res : "";
+}
+
 sub name {
     my ($self, $msg) = @_;
     return lc($msg =~ s/^\s*([^\s]+).*/$1/ri);

@@ -28,6 +28,7 @@ sub read_file {
     close(ACL);
 }
 
+# if a user is allowed to run command
 sub allow {
     my ($self, $command, $params) = @_;
 
@@ -38,6 +39,19 @@ sub allow {
 		   or ($params->room_member and $params->room_member eq $_)
 		   or ($params->room_member and bare_jid($params->room_member)."/*" eq $_)
 	       } (@{$self->{acl}{$command}}, @{$self->{acl}{'*'}});
+}
+
+# all auths allowed to user
+sub auths {
+    my $self = shift;
+    my $params = shift;
+
+    my @commands;
+    foreach my $command (keys %{$self->{acl}}) {
+	push @commands, $command if $self->allow($command, $params);
+    }
+
+    return @commands;
 }
 
 1;

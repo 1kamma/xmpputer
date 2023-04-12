@@ -137,6 +137,7 @@ $cl->reg_cb (
 											muc => $muc,
 											account => $account,
 											room_member => $msg->from,
+											commands => $commands,
 										       );
 				       my $reply = $commands->answer($params);
 				       if ($reply) {
@@ -190,6 +191,7 @@ $cl->reg_cb (
 								  acl => $acl,
 								  muc => $muc,
 								  account => $account,
+								  commands => $commands,
 								 );
 		 my $reply = $commands->answer($params);
 		 if ($reply) {

@@ -51,4 +51,14 @@ sub name {
     return "roll";
 }
 
+sub help {
+    my $self = shift;
+    my $params = shift;
+
+    if ($self->allow($params)) {
+	return "roll <dice> - prints results of <dice> roll", "rolla <dice> - prints intermediate results of <dice> roll";
+    }
+    return "";
+}
+
 1;

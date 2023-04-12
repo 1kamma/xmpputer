@@ -42,4 +42,14 @@ sub name {
     return "echo";
 }
 
+sub help {
+    my $self = shift;
+    my $params = shift;
+
+    if ($self->allow($params)) {
+	return "echo <message> - prints <message>";
+    }
+    return "";
+}
+
 1;

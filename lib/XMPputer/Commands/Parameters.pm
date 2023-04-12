@@ -5,6 +5,8 @@ use warnings;
 
 use AnyEvent::XMPP::Util qw/node_jid res_jid split_jid bare_jid/;
 
+use Clone;
+
 sub new {
     my $cls = shift;
     my $self = bless {}, $cls;
@@ -13,6 +15,17 @@ sub new {
 	$self->{"_$arg"} = $args{$arg};
     }
     return $self;
+}
+
+sub clone {
+    my $self = shift;
+    my %args = @_;
+
+    my $that = Clone::clone($self);
+    foreach my $arg (keys %args) {
+	$that->{"_$arg"} = $args{$arg};
+    }
+    return $that;
 }
 
 sub msg {
@@ -50,6 +63,11 @@ sub muc {
 sub account {
     my $self = shift;
     return $self->{_account};
+}
+
+sub commands {
+    my $self = shift;
+    return $self->{_commands};
 }
 
 sub room_member_withor_jid {
