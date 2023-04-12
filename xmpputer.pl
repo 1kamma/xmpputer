@@ -202,7 +202,7 @@ $cl->reg_cb (
 
 	     contact_request_subscribe => sub {
 		 my ($cl, $acc, $roster, $contact) = @_;
-		 my $subscription = $contact->subscription;
+		 my $subscription = $contact->subscription // "none";
 		 print "subscribe request by ".$contact->jid." (current: $subscription)\n";
 		 if ($subscription ne "both") {
 		     $contact->send_subscribed();
