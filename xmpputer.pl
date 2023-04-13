@@ -184,9 +184,9 @@ $cl->reg_cb (
 
 	     message => sub {
 		 my ($cl, $acc, $msg) = @_;
-
-		 print "message: '".$msg->any_body."' from '".$msg->from."'\n";
-		 my $params = XMPputer::Commands::Parameters->new(msg => $msg->any_body,
+		 my $body = $msg->any_body // "";
+		 print "message: '".$body."' from '".$msg->from."'\n";
+		 my $params = XMPputer::Commands::Parameters->new(msg => $body,
 								  from => $msg->from,
 								  acl => $acl,
 								  muc => $muc,
