@@ -33,8 +33,10 @@ sub answer {
     @res = grep {$_} @res;
     if (@res) {
 	@res = sort @res;
-	push @res, "(some commands are missing help)" if $missing;
-	return join("\n", @res);
+	unless (@res == 1 and $res[0] eq $self->help($params)) {
+	    push @res, "(some commands are missing help)" if $missing;
+	    return join("\n", @res);
+	}
     }
     return "Sorry, I can't help you";
 }
