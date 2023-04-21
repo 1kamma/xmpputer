@@ -186,6 +186,7 @@ $cl->reg_cb (
 		 my ($cl, $acc, $msg) = @_;
 		 my $body = $msg->any_body // "";
 		 print "message: '".$body."' from '".$msg->from."'\n";
+		 return unless $body;
 		 my $params = XMPputer::Commands::Parameters->new(msg => $body,
 								  from => $msg->from,
 								  acl => $acl,
