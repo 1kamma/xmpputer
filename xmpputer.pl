@@ -129,7 +129,7 @@ $cl->reg_cb (
 				   return if $is_echo;
 				   return if $msg->is_delayed;
 				   # my $mynick = res_jid ($room->nick_jid);
-				   if ($msg->any_body =~ /^(\s*\Qcomputer\E:\s+)?(.*?)\s*$/) {
+				   if ($msg->any_body =~ /^(\s*\Qcomputer\E:\s+)?(.*?)\s*$/s) {
 				       my ($unsolicited, $text) = (($1 ? 0 : 1), $2);
 				       print "room message ".($unsolicited ? "(unsolicited)" : "").": \"$msg\" from \"".res_jid($msg->from)."\" in \"".$room->jid."\"\n" unless $unsolicited;
 				       my $params = XMPputer::Commands::Parameters->new(msg => $text,
