@@ -70,6 +70,11 @@ sub commands {
     return $self->{_commands};
 }
 
+sub unsolicited {
+    my $self = shift;
+    return $self->{_unsolicited};
+}
+
 sub room_member_withor_jid {
     my $self = shift;
     if ($self->room_member) {

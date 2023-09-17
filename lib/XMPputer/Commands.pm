@@ -42,10 +42,12 @@ sub answer {
     my @commands;
 
     foreach my $cmd (@{$self->{cmds}}) {
+	next if $params->unsolicited and not $cmd->{unsolicited};
 	push @commands, $cmd->match($params->msg) // ();
     }
 
     unless (@commands) {
+	return if $params->unsolicited;
 	print $params->room_member_withor_jid." not authorized\n";
 	return "Not Authorized";
     } elsif (@commands > 1) {
@@ -59,6 +61,12 @@ sub answer {
 	    return "Not Authorized";
 	}
     }
+}
+
+sub get_command {
+    my ($self, $cmd) = @_;
+
+    return (grep {$_->name eq $cmd} @{$self->{cmds}})[0];
 }
 
 1;

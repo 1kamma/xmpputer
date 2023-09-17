@@ -129,18 +129,21 @@ $cl->reg_cb (
 				   return if $is_echo;
 				   return if $msg->is_delayed;
 				   # my $mynick = res_jid ($room->nick_jid);
-				   if ($msg->any_body =~ /^\s*\Qcomputer\E:\s+(.*?)\s*$/) {
-				       print "room message: \"$msg\" from \"".res_jid($msg->from)."\" in \"".$room->jid."\"\n";
-				       my $params = XMPputer::Commands::Parameters->new(msg => $1,
+				   if ($msg->any_body =~ /^(\s*\Qcomputer\E:\s+)?(.*?)\s*$/) {
+				       my ($unsolicited, $text) = (($1 ? 0 : 1), $2);
+				       print "room message ".($unsolicited ? "(unsolicited)" : "").": \"$msg\" from \"".res_jid($msg->from)."\" in \"".$room->jid."\"\n" unless $unsolicited;
+				       my $params = XMPputer::Commands::Parameters->new(msg => $text,
 											from => $room->get_user(res_jid($msg->from))->real_jid,
 											acl => $acl,
 											muc => $muc,
 											account => $account,
 											room_member => $msg->from,
 											commands => $commands,
+											unsolicited => $unsolicited,
 										       );
 				       my $reply = $commands->answer($params);
 				       if ($reply) {
+					   print "room message ".($unsolicited ? "(unsolicited)" : "").": \"$msg\" from \"".res_jid($msg->from)."\" in \"".$room->jid."\"\n" if $unsolicited;
 					   my $repl = $msg->make_reply;
 					   $repl->add_body(join("\n", ("> ".$params->msg, $reply)));
 					   $repl->send;

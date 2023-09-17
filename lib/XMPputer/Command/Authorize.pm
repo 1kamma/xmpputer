@@ -73,6 +73,7 @@ sub help {
 
 sub name {
     my ($self, $msg) = @_;
+    return "authorize" unless $msg;
     return lc($msg =~ s/^\s*([^\s]+).*/$1/ri);
 }
 

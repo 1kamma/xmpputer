@@ -108,6 +108,7 @@ sub help {
 
 sub name {
     my ($self, $msg) = @_;
+    return "muc" unless $msg;
     return lc($msg =~ s/^\s*([^\s]+).*/$1/ri);
 }
 

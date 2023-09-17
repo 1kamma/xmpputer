@@ -32,6 +32,12 @@ sub read_file {
 sub allow {
     my ($self, $command, $params) = @_;
 
+    # everyone is allowed unsolicited commands
+    if ($params->commands->get_command($command) and
+	$params->commands->get_command($command)->{unsolicited}) {
+	return 1;
+    }
+
     $self->{acl}{$command} //= [];
     return any { 0
 		   or $params->jid eq $_

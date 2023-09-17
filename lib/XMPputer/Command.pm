@@ -6,6 +6,7 @@ use strict;
 sub new {
     my $cls = shift;
     my $self = bless {}, $cls;
+    $self->{unsolicited} = 0;
     return $self;
 }
 
