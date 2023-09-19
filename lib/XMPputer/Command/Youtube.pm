@@ -38,13 +38,16 @@ sub answer {
 
     my $id;
     my $reply = "";
+    my $short = 0;
     foreach my $line (split /\n/, $params->msg) {
 	next if $line =~ m/^>/;
 	unless ($id) {
 	    if ($line =~ m,https?://(?:www\.)?youtube.com/watch\?(?:v=|.*?\&v=)([a-zA-Z0-9_-]*),) {
 		$id = $1;
+		$short = 0;
 	    } elsif ($line =~ m,https?://(?:www\.)?youtube.com/shorts/([a-zA-Z0-9_-]*),) {
 		$id = $1;
+		$short = 1;
 	    }
 	}
     }
@@ -57,6 +60,9 @@ sub answer {
 	    my $content = $response->decoded_content;
 	    eval {$content = decode_json($content)};
 	    if ($content and $content->{title}) {
+		if ($short) {
+		    $reply .= "https://www.youtube.com/watch?v=$id\n";
+		}
 		$reply .= $content->{title};
 		return $reply;
 	    }
