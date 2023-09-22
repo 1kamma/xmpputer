@@ -57,13 +57,17 @@ sub answer {
 	print "Checking title for youtube $id\n";
 	my $response = $self->{ua}->get("https://noembed.com/embed?url=https://www.youtube.com/watch?v=${id}");
 	if ($response->is_success) {
-	    my $content = $response->decoded_content;
-	    eval {$content = decode_json($content)};
+	    my $raw = $response->decoded_content;
+	    my $content;
+	    eval {$content = decode_json(Encode::encode_utf8($raw))};
 	    if ($content and $content->{title}) {
 		if ($short) {
 		    $reply .= "https://www.youtube.com/watch?v=$id\n";
 		}
 		$reply .= $content->{title};
+		return $reply;
+	    } else {
+		$reply .= "There's a youtube link there, but I can't seem to find the title";
 		return $reply;
 	    }
 	}
