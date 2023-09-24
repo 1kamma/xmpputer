@@ -38,10 +38,10 @@ sub read_file {
     $self->{acl} = {'*' => []};
     open(ACL, "<$file") or die "can't read acl file";
     foreach my $acl (<ACL>) {
-	my ($key, $value) = split /\s+/, $acl, 2;
-	chomp($value);
-	$self->{acl}{$key} //= [];
-	push @{$self->{acl}{$key}}, $value;
+        my ($key, $value) = split /\s+/, $acl, 2;
+        chomp($value);
+        $self->{acl}{$key} //= [];
+        push @{$self->{acl}{$key}}, $value;
     }
     close(ACL);
 }
@@ -52,17 +52,17 @@ sub allow {
 
     # everyone is allowed unsolicited commands
     if ($params->commands->get_command($command) and
-	$params->commands->get_command($command)->{unsolicited}) {
-	return 1;
+        $params->commands->get_command($command)->{unsolicited}) {
+        return 1;
     }
 
     $self->{acl}{$command} //= [];
     return any { 0
-		   or $params->jid eq $_
-		   or "*" eq $_
-		   or ($params->room_member and $params->room_member eq $_)
-		   or ($params->room_member and bare_jid($params->room_member)."/*" eq $_)
-	       } (@{$self->{acl}{$command}}, @{$self->{acl}{'*'}});
+                   or $params->jid eq $_
+                   or "*" eq $_
+                   or ($params->room_member and $params->room_member eq $_)
+                   or ($params->room_member and bare_jid($params->room_member)."/*" eq $_)
+               } (@{$self->{acl}{$command}}, @{$self->{acl}{'*'}});
 }
 
 # all auths allowed to user
@@ -72,7 +72,7 @@ sub auths {
 
     my @commands;
     foreach my $command (keys %{$self->{acl}}) {
-	push @commands, $command if $self->allow($command, $params);
+        push @commands, $command if $self->allow($command, $params);
     }
 
     return @commands;

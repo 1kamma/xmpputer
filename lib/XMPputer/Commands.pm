@@ -39,18 +39,18 @@ sub _init {
     $self->{cmds} = [];
 
     find({wanted => sub {
-	      $_ =~ m/\.pm$/ and $File::Find::name =~ s,.*/XMPputer/Command/,, and push @cmds, $File::Find::name;
-	  }},
-	 grep {-d "$_"} map {"$_/XMPputer/Command/"} @INC);
+              $_ =~ m/\.pm$/ and $File::Find::name =~ s,.*/XMPputer/Command/,, and push @cmds, $File::Find::name;
+          }},
+         grep {-d "$_"} map {"$_/XMPputer/Command/"} @INC);
     foreach my $cmdfile (@cmds) {
-	(my $name) = $cmdfile =~ m/(.*)\.pm$/;
+        (my $name) = $cmdfile =~ m/(.*)\.pm$/;
         next if index($cmdfile, ".#") == 0;
         eval {require "XMPputer/Command/$cmdfile"};
-	die if ($@);
-	my $cmd;
-	eval "\$cmd = XMPputer::Command::${name}->new()";
-	next if ($@);
-	push @{$self->{cmds}}, $cmd;
+        die if ($@);
+        my $cmd;
+        eval "\$cmd = XMPputer::Command::${name}->new()";
+        next if ($@);
+        push @{$self->{cmds}}, $cmd;
     }
 }
 
@@ -60,24 +60,24 @@ sub answer {
     my @commands;
 
     foreach my $cmd (@{$self->{cmds}}) {
-	next if $params->unsolicited and not $cmd->{unsolicited};
-	push @commands, $cmd->match($params->msg) // ();
+        next if $params->unsolicited and not $cmd->{unsolicited};
+        push @commands, $cmd->match($params->msg) // ();
     }
 
     unless (@commands) {
-	return if $params->unsolicited;
-	print $params->room_member_withor_jid." not authorized\n";
-	return "Not Authorized";
+        return if $params->unsolicited;
+        print $params->room_member_withor_jid." not authorized\n";
+        return "Not Authorized";
     } elsif (@commands > 1) {
-	...
+        ...
     } else {
-	my $cmd = $commands[0];
-	if ($cmd->allow($params)) {
-	    return $commands[0]->answer($params);
-	} else {
-	    print $params->room_member_withor_jid." not authorized to ".$cmd->name($params->msg)."\n";
-	    return "Not Authorized";
-	}
+        my $cmd = $commands[0];
+        if ($cmd->allow($params)) {
+            return $commands[0]->answer($params);
+        } else {
+            print $params->room_member_withor_jid." not authorized to ".$cmd->name($params->msg)."\n";
+            return "Not Authorized";
+        }
     }
 }
 

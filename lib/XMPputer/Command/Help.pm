@@ -33,7 +33,7 @@ sub match {
     my ($self, $msg) = @_;
 
     if ($msg =~ m/^\s*help(?:\s+.*)?/i) {
-	return $self;
+        return $self;
     }
     return undef;
 }
@@ -45,16 +45,16 @@ sub answer {
     my @res;
     my $commands = $params->commands;
     foreach my $cmd (@{$commands->{cmds}}) {
-	push @res, $cmd->help($params);
+        push @res, $cmd->help($params);
     }
     my $missing = scalar(grep {not defined $_} @res);
     @res = grep {$_} @res;
     if (@res) {
-	@res = sort @res;
-	unless (@res == 1 and $res[0] eq $self->help($params)) {
-	    push @res, "(some commands are missing help)" if $missing;
-	    return join("\n", @res);
-	}
+        @res = sort @res;
+        unless (@res == 1 and $res[0] eq $self->help($params)) {
+            push @res, "(some commands are missing help)" if $missing;
+            return join("\n", @res);
+        }
     }
     return "Sorry, I can't help you";
 }
@@ -75,7 +75,7 @@ sub help {
     my $params = shift;
 
     if ($self->allow($params)) {
-	return "help - prints help";
+        return "help - prints help";
     }
     return "";
 }

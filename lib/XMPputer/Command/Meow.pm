@@ -35,7 +35,7 @@ sub match {
     my ($self, $msg) = @_;
 
     if ($msg =~ m/^\s*meow\s*$/i) {
-	return $self;
+        return $self;
     }
     return undef;
 }
@@ -45,8 +45,8 @@ sub answer {
     my $params = shift;
 
     if ($params->msg =~ m/^\s*meow\s*$/i) {
-	my @cats = ('🐱','😺','😽','😸','😻');
-	return $cats[rand(@cats)];
+        my @cats = ('🐱','😺','😽','😸','😻');
+        return $cats[rand(@cats)];
     }
 
     return "Bad meow command\n";
@@ -69,7 +69,7 @@ sub help {
     my $params = shift;
 
     if ($self->allow($params)) {
-	return "meow";
+        return "meow";
     }
     return "";
 }

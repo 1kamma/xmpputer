@@ -35,7 +35,7 @@ sub match {
     my ($self, $msg) = @_;
 
     if ($msg =~ m/^\s*(de)?authorize\s+[^\s]+\s+[^\s]+\s*$/i) {
-	return $self;
+        return $self;
     }
     return undef;
 }
@@ -45,20 +45,20 @@ sub answer {
     my $params = shift;
 
     if ($params->msg =~ m/^\s*(de)?authorize\s+([^\s]+)\s+([^\s]+)\s*$/i) {
-	my $deauth = $1;
-	my $who = $2;
-	my $what = $3;
-	$params->acl->{acl}{$what} //= [];
-	if ($params->room_member and index($who, "@") < 0) {
-	    $who = join("/", bare_jid($params->room_member), $who);
-	}
-	if ($deauth) {
-	    $params->acl->{acl}{$what} = [grep {$_ ne $who} @{$params->acl->{acl}{$what}}];
-	    return "$who deauthorized from $what";
-	} else {
-	    push @{$params->acl->{acl}{$what}}, $who;
-	    return "$who authorized to $what";
-	}
+        my $deauth = $1;
+        my $who = $2;
+        my $what = $3;
+        $params->acl->{acl}{$what} //= [];
+        if ($params->room_member and index($who, "@") < 0) {
+            $who = join("/", bare_jid($params->room_member), $who);
+        }
+        if ($deauth) {
+            $params->acl->{acl}{$what} = [grep {$_ ne $who} @{$params->acl->{acl}{$what}}];
+            return "$who deauthorized from $what";
+        } else {
+            push @{$params->acl->{acl}{$what}}, $who;
+            return "$who authorized to $what";
+        }
     }
 
     return "Bad (de)authorize command\n";
@@ -78,12 +78,12 @@ sub help {
 
     my $params2 = $params->clone(msg => "authorize aaa bbb");
     if ($self->allow($params2)) {
-	push @res, "authorize <user> <cmd> - authorize <user> to use <cmd>";
+        push @res, "authorize <user> <cmd> - authorize <user> to use <cmd>";
     }
 
     $params2 = $params->clone(msg => "deauthorize aaa bbb");
     if ($self->allow($params2)) {
-	push @res, "deauthorize <user> <cmd> - remove <user> authorization to use <cmd>";
+        push @res, "deauthorize <user> <cmd> - remove <user> authorization to use <cmd>";
     }
 
     return @res ? @res : "";

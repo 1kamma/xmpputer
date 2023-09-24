@@ -35,7 +35,7 @@ sub match {
     my ($self, $msg) = @_;
 
     if ($msg =~ m/^\s*define:?\s+[^\s]+/i) {
-	return $self;
+        return $self;
     }
     return undef;
 }
@@ -45,12 +45,12 @@ sub answer {
     my $params = shift;
 
     if ($params->msg =~ m/^\s*define:?\s+(.+)\s*$/i) {
-	my $dict = Net::Dict->new('dict.org');
-	my $defines = $dict->define($1);
-	if ($defines and @$defines) {
-	    return $defines->[0][1];
-	}
-	return "Don't know about that...";
+        my $dict = Net::Dict->new('dict.org');
+        my $defines = $dict->define($1);
+        if ($defines and @$defines) {
+            return $defines->[0][1];
+        }
+        return "Don't know about that...";
     }
 
     return "Bad define command\n";
@@ -72,7 +72,7 @@ sub help {
     my $params = shift;
 
     if ($self->allow($params)) {
-	return "define: <something> - defines <something>";
+        return "define: <something> - defines <something>";
     }
     return "";
 }

@@ -35,7 +35,7 @@ sub match {
     my ($self, $msg) = @_;
 
     if ($msg =~ m/^\s*roll(?:a?)\s+[^\s]+/i) {
-	return $self;
+        return $self;
     }
     return undef;
 }
@@ -45,14 +45,14 @@ sub answer {
     my $params = shift;
 
     if ($params->msg =~ m/^\s*roll(a?)\s+([^\s].*?)\s*$/i) {
-	my $array = $1;
-	my $dice = $2;
-	if ($array) {
-	    my @throws = roll_array $dice;
-	    return join(" + ", @throws)." = ".List::Util::sum(@throws);
-	} else {
-	    return roll $dice;
-	}
+        my $array = $1;
+        my $dice = $2;
+        if ($array) {
+            my @throws = roll_array $dice;
+            return join(" + ", @throws)." = ".List::Util::sum(@throws);
+        } else {
+            return roll $dice;
+        }
     }
 
     return "Bad roll command\n";
@@ -74,7 +74,7 @@ sub help {
     my $params = shift;
 
     if ($self->allow($params)) {
-	return "roll <dice> - prints results of <dice> roll", "rolla <dice> - prints intermediate results of <dice> roll";
+        return "roll <dice> - prints results of <dice> roll", "rolla <dice> - prints intermediate results of <dice> roll";
     }
     return "";
 }

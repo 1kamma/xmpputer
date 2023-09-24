@@ -33,7 +33,7 @@ sub match {
     my ($self, $msg) = @_;
 
     if ($msg =~ m/^\s*echo\s+[^\s]+/i) {
-	return $self;
+        return $self;
     }
     return undef;
 }
@@ -43,7 +43,7 @@ sub answer {
     my $params = shift;
 
     if ($params->msg =~ m/^\s*echo\s+(.+)\s*$/i) {
-	return "$1";
+        return "$1";
     }
 
     return "Bad echo command\n";
@@ -65,7 +65,7 @@ sub help {
     my $params = shift;
 
     if ($self->allow($params)) {
-	return "echo <message> - prints <message>";
+        return "echo <message> - prints <message>";
     }
     return "";
 }

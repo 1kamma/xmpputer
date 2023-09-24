@@ -30,7 +30,7 @@ sub new {
     my $self = bless {}, $cls;
     my %args = @_;
     foreach my $arg (keys %args) {
-	$self->{"_$arg"} = $args{$arg};
+        $self->{"_$arg"} = $args{$arg};
     }
     return $self;
 }
@@ -41,7 +41,7 @@ sub clone {
 
     my $that = Clone::clone($self);
     foreach my $arg (keys %args) {
-	$that->{"_$arg"} = $args{$arg};
+        $that->{"_$arg"} = $args{$arg};
     }
     return $that;
 }
@@ -96,9 +96,9 @@ sub unsolicited {
 sub room_member_withor_jid {
     my $self = shift;
     if ($self->room_member) {
-	return $self->room_member." (".$self->jid.")";
+        return $self->room_member." (".$self->jid.")";
     } else {
-	return $self->jid
+        return $self->jid
     }
 }
 
