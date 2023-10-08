@@ -178,6 +178,11 @@ $cl->reg_cb (
 
                                error => sub {
                                    my ($cl, $acc, $error) = @_;
+                                   if (ref $error eq "AnyEvent::XMPP::Error::Presence") {
+                                       my $node = $error->xml_node();
+                                       printf "Ignoring (MUC) presence error (%s -> %s): %s\n", $node->attr('from'), $node->attr('to'), $error->string;
+                                       return;
+                                   }
                                    warn "MUC Error encountered: ".$error->string."\n";
                                    $cv->broadcast;
                                },
@@ -235,6 +240,11 @@ $cl->reg_cb (
 
              error => sub {
                  my ($cl, $acc, $error) = @_;
+                 if (ref $error eq "AnyEvent::XMPP::Error::Presence") {
+                     my $node = $error->xml_node();
+                     printf "Ignoring presence error (%s -> %s): %s\n", $node->attr('from'), $node->attr('to'), $error->string;
+                     return;
+                 }
                  warn "Error encountered: ".$error->string."\n";
                  $cv->broadcast;
              },
