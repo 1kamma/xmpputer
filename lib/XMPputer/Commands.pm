@@ -49,8 +49,12 @@ sub _init {
         die if ($@);
         my $cmd;
         eval "\$cmd = XMPputer::Command::${name}->new()";
-        next if ($@);
+        if ($@) {
+            print STDERR "Can't load XMPputer::Command::${name}: $@\n";
+            next;
+        }
         push @{$self->{cmds}}, $cmd;
+        print "Loaded XMPputer::Command::${name}\n";
     }
 }
 
