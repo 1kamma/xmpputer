@@ -23,6 +23,8 @@ use strict;
 
 use utf8;
 
+use List::Util qw(any);
+
 use base "XMPputer::Command";
 
 sub new {
@@ -34,7 +36,61 @@ sub new {
 sub match {
     my ($self, $msg) = @_;
 
-    if ($msg =~ m/^\s*meow\s*$/i) {
+    my @meows = (qw(
+                       mao
+                       meaw
+                       meo
+                       meogre
+                       meong
+                       meow
+                       mi'au
+                       miao
+                       miaou
+                       miaow
+                       miau
+                       miauw
+                       miav
+                       miaw
+                       miaŭ
+                       mijav
+                       miyaun
+                       miyav
+                       miyāʾūṉ
+                       miáú
+                       mja
+                       mjau
+                       mjau
+                       mjá
+                       mnau
+                       muwaa
+                       myau
+                       mňau
+                       nau
+                       ngeung
+                       ngiyaw
+                       niaou
+                       njau
+                       njäu
+                       nyan
+                       nyav
+                       nyaú
+                       nyān
+                       ya-ong
+                       yaong
+                       νιάου
+                       мяу
+                       мјау
+                       מיאַו
+                       מיאו
+                       مٌواء
+                       میاؤں
+                       にゃーん
+                       ニャー
+                       喵
+                       야옹
+                 ));
+
+    if (any {$msg =~ m/^\s*${_}\s*$/i} @meows) {
         return $self;
     }
     return undef;
@@ -44,7 +100,7 @@ sub answer {
     my $self = shift;
     my $params = shift;
 
-    if ($params->msg =~ m/^\s*meow\s*$/i) {
+    if ($self->match($params->msg)) {
         my @cats = (
                     #'咥', # 0x54a5: CJK UNIFIED IDEOGRAPH-54A5, sound of a cat; bite; laugh. (probably not cat specifically)
                     '咪', # 0x54aa: CJK UNIFIED IDEOGRAPH-54AA, sound of cat, cat's meow; meter; (Cant.) don't!
