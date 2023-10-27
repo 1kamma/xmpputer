@@ -45,7 +45,28 @@ sub answer {
     my $params = shift;
 
     if ($params->msg =~ m/^\s*meow\s*$/i) {
-        my @cats = ('🐱','😺','😽','😸','😻');
+        my @cats = (
+                    #'咥', # 0x54a5: CJK UNIFIED IDEOGRAPH-54A5, sound of a cat; bite; laugh. (probably not cat specifically)
+                    '咪', # 0x54aa: CJK UNIFIED IDEOGRAPH-54AA, sound of cat, cat's meow; meter; (Cant.) don't!
+                    '喵', # 0x55b5: CJK UNIFIED IDEOGRAPH-55B5, the mew of the cat
+                    #'猫', # 0x732b: CJK UNIFIED IDEOGRAPH-732B, cat
+                    #'貓', # 0x8c93: CJK UNIFIED IDEOGRAPH-8C93, cat
+                    #'ꊶ',  # 0xa2b6: YI SYLLABLE CAT
+                    #'챁', # 0xcc41: HANGUL SYLLABLE CAT
+                    #'𐇬', # 0x101ec: PHAISTOS DISC SIGN CAT
+                    '🐈', # 0x1f408: CAT
+                    '🐱', # 0x1f431: CAT FACE
+                    '😸', # 0x1f638: GRINNING CAT FACE WITH SMILING EYES
+                    '😹', # 0x1f639: CAT FACE WITH TEARS OF JOY
+                    '😺', # 0x1f63a: SMILING CAT FACE WITH OPEN MOUTH
+                    '😻', # 0x1f63b: SMILING CAT FACE WITH HEART-SHAPED EYES
+                    #'😼', # 0x1f63c: CAT FACE WITH WRY SMILE
+                    '😽', # 0x1f63d: KISSING CAT FACE WITH CLOSED EYES
+                    #'😾', # 0x1f63e: POUTING CAT FACE
+                    #'😿', # 0x1f63f: CRYING CAT FACE
+                    #'🙀', # 0x1f640: WEARY CAT FACE
+                    'prrr',
+                   );
         return $cats[rand(@cats)];
     }
 
