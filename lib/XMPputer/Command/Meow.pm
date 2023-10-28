@@ -30,67 +30,69 @@ use base "XMPputer::Command";
 sub new {
     my $cls = shift;
     my $self = $cls->SUPER::new(@_);
+    $self->{unsolicited} = 1;
     return $self;
 }
 
 sub match {
     my ($self, $msg) = @_;
 
-    my @meows = (qw(
-                       mao
-                       meaw
-                       meo
-                       meogre
-                       meong
-                       meow
-                       mi'au
-                       miao
-                       miaou
-                       miaow
-                       miau
-                       miauw
-                       miav
-                       miaw
-                       miaŭ
-                       mijav
-                       miyaun
-                       miyav
-                       miyāʾūṉ
-                       miáú
-                       mja
-                       mjau
-                       mjau
-                       mjá
-                       mnau
-                       muwaa
-                       myau
-                       mňau
-                       nau
-                       ngeung
-                       ngiyaw
-                       niaou
-                       njau
-                       njäu
-                       nyan
-                       nyav
-                       nyaú
-                       nyān
-                       ya-ong
-                       yaong
-                       νιάου
-                       мяу
-                       мјау
-                       מיאַו
-                       מיאו
-                       مٌواء
-                       میاؤں
-                       にゃーん
-                       ニャー
-                       喵
-                       야옹
-                 ));
+    my @meows = (
+                 "mao",
+                 "meaw",
+                 "meo",
+                 "meogre",
+                 "meong",
+                 "meow",
+                 "mi'au",
+                 "miao",
+                 "miaou",
+                 "miaow",
+                 "miau",
+                 "miauw",
+                 "miav",
+                 "miaw",
+                 "miaŭ",
+                 "mijav",
+                 "miyaun",
+                 "miyav",
+                 "miyāʾūṉ",
+                 "miáú",
+                 "mja",
+                 "mjau",
+                 "mjau",
+                 "mjá",
+                 "mnau",
+                 "muwaa",
+                 "myau",
+                 "mňau",
+                 "nau",
+                 "ngeung",
+                 "ngiyaw",
+                 "niaou",
+                 "njau",
+                 "njäu",
+                 "nyan",
+                 "nyav",
+                 "nyaú",
+                 "nyān",
+                 "ya-ong",
+                 "yaong",
+                 "νιάου",
+                 "мяу",
+                 "мјау",
+                 "מיאַו",
+                 "[ל]?מיאו",
+                 "مٌواء",
+                 "میاؤں",
+                 "にゃーん",
+                 "ニャー",
+                 "喵",
+                 "야옹",
+                );
 
-    if (any {$msg =~ m/^\s*${_}\s*$/i} @meows) {
+    #if (any {$msg =~ m/^\s*${_}\s*$/i} @meows) {
+    if (any {$msg =~ m/\b${_}\b/i} @meows) {
         return $self;
     }
     return undef;
