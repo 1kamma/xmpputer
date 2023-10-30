@@ -25,6 +25,7 @@ use warnings;
 use List::Util qw(any);
 use Games::Dice qw(roll roll_array);
 use Getopt::Long;
+use List::Compare;
 use Sys::Hostname;
 use AnyEvent::XMPP::Util qw/node_jid res_jid split_jid bare_jid/;
 use AnyEvent::XMPP::Client;
@@ -71,25 +72,40 @@ unless (GetOptions("c|conf=s"     => \$conffile,
 
 # conf
 open(CONF, "$conffile") or die "Can't open $conffile";
+my %conf = (general => {});
+my $section = "general";
 foreach my $line (<CONF>) {
     chomp($line);
     $line =~ s/#.*//;
     next if $line =~ m/^\s*$/;
-    if ($line =~ m/^\s*jid\s*=\s*(.*)\s*$/) {
-        $jid = $1;
-    } elsif ($line =~ m/^\s*passwordfile\s*=\s*(.*)\s*$/) {
-        $pwfile = $1;
-    } elsif ($line =~ m/^\s*password\s*=\s*(.*)\s*$/) {
-        $pw = $1;
-    } elsif ($line =~ m/^\s*room\s*=\s*(.*)\s*$/) {
-        push @rooms, $1;
-    } elsif ($line =~ m/^\s*aclfile\s*=\s*(.*)\s*$/) {
-        $aclfile = $1;
+    if ($line =~ m/^\s*([^=]*?)\s*=\s*(.*?)\s*$/) {
+        my ($key, $value) = ($1, $2);
+        if ($conf{$section}{$key}) {
+            if (ref $conf{$section}{$key}) {
+                push @{$conf{$section}{$key}}, $value;
+            } else {
+                $conf{$section}{$key} = [$conf{$section}{$key}, $value];
+            }
+        } else {
+            $conf{$section}{$key} = $value;
+        }
+    } elsif ($line =~ m/^\s*\[([^\]]*)\]\s*$/) {
+        $section = lc($1);
     } else {
-        print STDERR "Bad conf line: $line\n";
+        print STDERR "Bad conf line in [$section]: $line\n";
     }
 }
 close(CONF);
+
+$jid = $conf{general}{jid};
+$pwfile = $conf{general}{passwordfile};
+$pw = $conf{general}{password};
+@rooms = ref $conf{general}{room} ? @{$conf{general}{room}} : ($conf{general}{room});
+$aclfile = $conf{general}{aclfile};
+if (my @extra = List::Compare->new([keys %{$conf{general}}], [qw(jid passwordfile password room aclfile)])->get_Lonly()) {
+    print STDERR "Bad conf keys in [general]: ".join(", ", sort @extra)."\n";
+}
+delete $conf{general};
 
 # overwrite with args
 $jid = $in_jid if $in_jid;
@@ -124,8 +140,11 @@ $cl->add_account($jid, $pw, undef, undef, {resource => "$hostname"});
 my $account = $cl->get_account($jid);
 
 my $acl = XMPputer::ACL->new();
-my $commands = XMPputer::Commands->new();
+my $commands = XMPputer::Commands->new(\%conf);
 $acl->read_file($aclfile);
+if (keys %conf) {
+    print STDERR "Extra sections in conf: ".join(", ", sort keys %conf)."\n";
+}
 
 $cl->reg_cb (
              session_ready => sub {

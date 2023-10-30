@@ -33,6 +33,7 @@ sub new {
 
 sub _init {
     my $self = shift;
+    my $confs = shift;
     my %args = @_;
     my @cmds;
 
@@ -48,11 +49,13 @@ sub _init {
         eval {require "XMPputer/Command/$cmdfile"};
         die if ($@);
         my $cmd;
-        eval "\$cmd = XMPputer::Command::${name}->new()";
+        my $conf = $confs->{lc($name)} // {};
+        eval "\$cmd = XMPputer::Command::${name}->new(\$conf)";
         if ($@) {
             print STDERR "Can't load XMPputer::Command::${name}: $@\n";
             next;
         }
+        delete $confs->{lc($name)};
         push @{$self->{cmds}}, $cmd;
         print "Loaded XMPputer::Command::${name}\n";
     }
