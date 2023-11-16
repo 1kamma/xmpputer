@@ -189,6 +189,8 @@ sub answer {
             return $date->err();
         }
 
+        $what =~ s/\s+(on|at|in)\s*$//;
+
         my $delta = $date->printf("%s") - $self->{dm}->new_date("now")->printf("%s");
         return "alarm command in the past" if ($delta < 0);
 
