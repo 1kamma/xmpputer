@@ -38,6 +38,7 @@ sub new {
     $self->{dm} = Date::Manip::Date->new();
     $self->{dm}->config("setdate" => "zone,Asia/Jerusalem");
     $self->{alarmsfile} = $conf->{alarmsfile} // "/var/xmpputer/alarms";
+    $self->{limit} = 5;
     return $self;
 }
 
@@ -163,6 +164,10 @@ sub answer {
             }
         } else {
             $whom = $params->jid;
+        }
+
+        if (scalar(grep {$_->{whom} eq $whom} @{$self->{alarms}}) >= $self->{limit}) {
+            return "Too many alarms for $whom\n";
         }
 
         # otherwise "at 7" will fail, but "Nov. 7" should still work
