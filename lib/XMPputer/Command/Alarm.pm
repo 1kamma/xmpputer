@@ -34,7 +34,7 @@ sub new {
     $self->{timer} = undef;
     $self->{lasttimer} = undef;
     $self->{dm} = Date::Manip::Date->new();
-    $self->{dm}->config("setdate" => "now,Asia/Jerusalem");
+    $self->{dm}->config("setdate" => "zone,Asia/Jerusalem");
 
     return $self;
 }
