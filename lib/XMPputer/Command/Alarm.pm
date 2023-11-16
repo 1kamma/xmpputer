@@ -21,6 +21,7 @@ package XMPputer::Command::Alarm;
 use warnings;
 use strict;
 
+use Carp;
 use List::Util qw(min max);
 use Date::Manip;
 use AnyEvent::XMPP::Util qw/bare_jid/;
@@ -30,13 +31,20 @@ use base "XMPputer::Command";
 sub new {
     my $cls = shift;
     my $self = $cls->SUPER::new(@_);
+    my $conf = shift;
     $self->{alarms} = [];
     $self->{timer} = undef;
     $self->{lasttimer} = undef;
     $self->{dm} = Date::Manip::Date->new();
     $self->{dm}->config("setdate" => "zone,Asia/Jerusalem");
-
+    $self->{alarmsfile} = $conf->{alarmsfile} // "/var/xmpputer/alarms";
     return $self;
+}
+
+sub ready {
+    my $self = shift;
+
+    $self->load_alarms();
 }
 
 sub match {
@@ -50,6 +58,37 @@ sub match {
         }
     }
     return undef;
+}
+
+sub load_alarms {
+    my $self = shift;
+
+    if (-e $self->{alarmsfile}) {
+        open(ALARMS, "$self->{alarmsfile}") or croak("can't read $self->{alarmsfile}");
+        $self->{alarms} = [];
+        foreach my $alarm (<ALARMS>) {
+            chomp($alarm);
+            if ($alarm =~ m/^(\d+),([^,]+),(.*)$/) {
+                push @{$self->{alarms}}, {when => $1,
+                                          whom => $2,
+                                          content => $3
+                                         };
+            }
+        }
+        close(ALARMS);
+        print "loaded ".scalar(@{$self->{alarms}})." alarms\n";
+        $self->create_timer() if @{$self->{alarms}};
+    }
+}
+
+sub save_alarms {
+    my $self = shift;
+
+    open(ALARMS, ">$self->{alarmsfile}") or croak("can't open $self->{alarmsfile}");
+    foreach my $alarm (@{$self->{alarms}}) {
+        print ALARMS "$alarm->{when},$alarm->{whom},$alarm->{content}\n";
+    }
+    close(ALARMS);
 }
 
 sub create_timer {
@@ -71,13 +110,13 @@ sub create_timer {
                                          foreach my $alarm (grep {$_->{when} <= $now} @{$self->{alarms}}) {
                                              print "alarm: $alarm->{whom}: $alarm->{content}\n";
 
-                                             my $contact = $alarm->{params}->account->connection->get_roster->get_contact($alarm->{whom});
+                                             my $contact = $self->{account}->connection->get_roster->get_contact($alarm->{whom});
                                              my $sent;
                                              if ($contact) {
                                                  $contact->make_message(type => 'chat')->add_body("Don't forget to $alarm->{content}")->send;
                                                  $sent = 1;
                                              } else {
-                                                 my $room = $alarm->{params}->muc->get_room($alarm->{params}->account->connection, $alarm->{whom});
+                                                 my $room = $self->{muc}->get_room($self->{account}->connection, $alarm->{whom});
                                                  if ($room) {
                                                      my $prefix = "Don't";
                                                      if ($alarm->{whom} =~ m/\/(.*)$/) {
@@ -90,6 +129,7 @@ sub create_timer {
                                              print "Failed to send alarm to $alarm->{whom}\n" unless $sent;
                                          }
                                          $self->{alarms} = [grep {$_->{when} > $now} @{$self->{alarms}}];
+                                         $self->save_alarms();
                                          $self->{timer} = undef;
                                          $self->{lasttimer} = undef;
                                          if (@{$self->{alarms}}) {
@@ -156,9 +196,8 @@ sub answer {
         push @{$self->{alarms}}, {when => $swhen,
                                   content => $what,
                                   whom => $whom,
-                                  params => $params,
                                  };
-
+        $self->save_alarms();
         $self->create_timer();
 
         my @responses = (
