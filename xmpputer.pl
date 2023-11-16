@@ -141,7 +141,7 @@ $cl->add_account($jid, $pw, undef, undef, {resource => "$hostname"});
 my $account = $cl->get_account($jid);
 
 my $acl = XMPputer::ACL->new();
-my $commands = XMPputer::Commands->new(\%conf);
+my $commands = XMPputer::Commands->new(\%conf, muc => $muc, account => $account);
 $acl->read_file($aclfile);
 if (keys %conf) {
     print STDERR "Extra sections in conf: ".join(", ", sort keys %conf)."\n";
@@ -158,6 +158,8 @@ $cl->reg_cb (
                  foreach my $room (@rooms) {
                      $muc->join_room($acc->connection, $room, node_jid($acc->jid));
                  }
+
+                 $commands->ready();
 
                  $muc->reg_cb (
                                message => sub {

@@ -50,7 +50,7 @@ sub _init {
         die if ($@);
         my $cmd;
         my $conf = $confs->{lc($name)} // {};
-        eval "\$cmd = XMPputer::Command::${name}->new(\$conf)";
+        eval "\$cmd = XMPputer::Command::${name}->new(\$conf, %args)";
         if ($@) {
             print STDERR "Can't load XMPputer::Command::${name}: $@\n";
             next;
@@ -92,6 +92,13 @@ sub get_command {
     my ($self, $cmd) = @_;
 
     return (grep {$_->name eq $cmd} @{$self->{cmds}})[0];
+}
+
+sub ready {
+    my $self = shift;
+    foreach my $cmd (@{$self->{cmds}}) {
+        $cmd->ready();
+    }
 }
 
 1;

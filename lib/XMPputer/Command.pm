@@ -23,8 +23,13 @@ use strict;
 
 sub new {
     my $cls = shift;
+    my $conf = shift;
+    my %args = @_;
     my $self = bless {}, $cls;
     $self->{unsolicited} = 0;
+    foreach my $arg (qw(muc account)) {
+        $self->{$arg} = $args{$arg} if $args{$arg};
+    }
     return $self;
 }
 
@@ -34,6 +39,11 @@ sub help {
 
     print STDERR "Warning: ".(ref $self)." is missing help\n";
     return undef;
+}
+
+sub ready {
+    my $self = shift;
+    return;
 }
 
 1;
