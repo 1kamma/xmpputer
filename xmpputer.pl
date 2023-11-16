@@ -101,7 +101,8 @@ $jid = $conf{general}{jid};
 $pwfile = $conf{general}{passwordfile};
 $pw = $conf{general}{password};
 @rooms = ref $conf{general}{room} ? @{$conf{general}{room}} : ($conf{general}{room});
-$aclfile = $conf{general}{aclfile};
+$aclfile = $conf{general}{aclfile} if $conf{general}{aclfile};
+$aclfile = $in_aclfile if $in_aclfile;
 if (my @extra = List::Compare->new([keys %{$conf{general}}], [qw(jid passwordfile password room aclfile)])->get_Lonly()) {
     print STDERR "Bad conf keys in [general]: ".join(", ", sort @extra)."\n";
 }
