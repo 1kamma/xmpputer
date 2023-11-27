@@ -106,7 +106,9 @@ sub create_timer {
 
         my $timer = AnyEvent->timer (
                                      after => $delta,
+                                     interval => 1800,
                                      cb => sub {
+                                         print "alarm timer wakeup\n";
                                          my $now = time();
                                          foreach my $alarm (grep {$_->{when} <= $now} @{$self->{alarms}}) {
                                              print "alarm: $alarm->{whom}: $alarm->{content}\n";
