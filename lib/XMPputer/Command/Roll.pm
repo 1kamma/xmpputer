@@ -34,7 +34,7 @@ sub new {
 sub match {
     my ($self, $msg) = @_;
 
-    if ($msg =~ m/^\s*roll(?:a?)\s+(\d{0,4}d\d{0,5})+/i) {
+    if ($msg =~ m/^\s*roll(?:a?)\s+(\d{0,4}d\d{0,5}([\+\-]\d{0,5})?)+/i) {
         return $self;
     }
     return undef;
@@ -44,7 +44,7 @@ sub answer {
     my $self = shift;
     my $params = shift;
 
-    if ($params->msg =~ m/^\s*roll(a?)\s+((\d{0,4}d\d{0,5}).*?)\s*$/i) {
+    if ($params->msg =~ m/^\s*roll(a?)\s+((\d{0,4}d\d{0,5}([\+\-]\d{0,5})?).*?)\s*$/i) {
         my $array = $1;
         my $dice = $2;
         if ($array) {
