@@ -34,7 +34,10 @@ sub new {
 sub match {
     my ($self, $msg, $return) = @_;
 
-    if ($msg =~ m/^\s*roll(a?)\s+(\d{0,4}d\d{0,5}([\+\-]\d{0,5})?)\s*$/i) {
+    if ($msg =~ m{^\s*roll(a?)\s+
+                  ((?<count>\d{1,4})?[dD](?<type>\d{1,5}|%|F)(?:(?<sign>[-+xX*/bB])(?<offset>\d{1,5}))?)
+                  \s*$}x
+       ) {
         if ($return) {
             return $1, $2;
         } else {
