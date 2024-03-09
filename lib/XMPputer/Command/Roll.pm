@@ -32,10 +32,17 @@ sub new {
 }
 
 sub match {
-    my ($self, $msg) = @_;
+    my ($self, $msg, $return) = @_;
 
-    if ($msg =~ m/^\s*roll(?:a?)\s+[^\s]+/i) {
-        return $self;
+    if ($msg =~ m{^\s*roll(a?)\s+
+                  ((?<count>\d{1,4})?[dD](?<type>\d{1,5}|%|F)(?:(?<sign>[-+xX*/bB])(?<offset>\d{1,5}))?)
+                  \s*$}x
+       ) {
+        if ($return) {
+            return $1, $2;
+        } else {
+            return $self;
+        }
     }
     return undef;
 }
@@ -44,9 +51,8 @@ sub answer {
     my $self = shift;
     my $params = shift;
 
-    if ($params->msg =~ m/^\s*roll(a?)\s+([^\s].*?)\s*$/i) {
-        my $array = $1;
-        my $dice = $2;
+    if (my @match = $self->match($params->msg, 1)) {
+        my ($array, $dice) = @match;
         if ($array) {
             my @throws = roll_array $dice;
             return join(" + ", @throws)." = ".List::Util::sum(@throws);
