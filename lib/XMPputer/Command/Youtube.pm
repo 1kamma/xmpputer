@@ -42,7 +42,10 @@ sub match {
         next if $line =~ m/^>/;
         if ($line =~ m,https?://(?:www\.)?youtube.com/(watch)\?(?:v=|.*?\&v=)([a-zA-Z0-9_-]*),
             or
-            $line =~ m,https?://(?:www\.)?youtube.com/(shorts)/([a-zA-Z0-9_-]*),) {
+            $line =~ m,https?://(?:www\.)?youtube.com/(shorts)/([a-zA-Z0-9_-]*),
+            or
+            $line =~ m,https?://youtu.(be)/([a-zA-Z0-9_-]*),
+           ) {
             if ($return) {
                 return (id => $2, short => ($1 eq "shorts" ? "1" : "0"));
             } else {
@@ -63,7 +66,6 @@ sub answer {
     my $short = 0;
     my %match = $self->match($params->msg, 1);
 
-    use Data::Dumper; print Dumper(\%match);
     if ($match{id}) {
         my $title;
         print "Checking title for youtube $match{id}\n";
