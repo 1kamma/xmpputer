@@ -36,14 +36,18 @@ sub new {
 }
 
 sub match {
-    my ($self, $msg) = @_;
+    my ($self, $msg, $return) = @_;
 
     foreach my $line (split /\n/, $msg) {
         next if $line =~ m/^>/;
-        if ($line =~ m,https?://(?:www\.)?youtube.com/watch\?(?:v=|.*?\&v=)[a-zA-Z0-9_-]*,
+        if ($line =~ m,https?://(?:www\.)?youtube.com/(watch)\?(?:v=|.*?\&v=)([a-zA-Z0-9_-]*),
             or
-            $line =~ m,https?://(?:www\.)?youtube.com/shorts/[a-zA-Z0-9_-]*,) {
-            return $self;
+            $line =~ m,https?://(?:www\.)?youtube.com/(shorts)/([a-zA-Z0-9_-]*),) {
+            if ($return) {
+                return (id => $2, short => ($1 eq "shorts" ? "1" : "0"));
+            } else {
+                return $self;
+            }
         }
     }
 
@@ -57,30 +61,20 @@ sub answer {
     my $id;
     my $reply = "";
     my $short = 0;
-    foreach my $line (split /\n/, $params->msg) {
-        next if $line =~ m/^>/;
-        unless ($id) {
-            if ($line =~ m,https?://(?:www\.)?youtube.com/watch\?(?:v=|.*?\&v=)([a-zA-Z0-9_-]*),) {
-                $id = $1;
-                $short = 0;
-            } elsif ($line =~ m,https?://(?:www\.)?youtube.com/shorts/([a-zA-Z0-9_-]*),) {
-                $id = $1;
-                $short = 1;
-            }
-        }
-    }
+    my %match = $self->match($params->msg, 1);
 
-    if ($id) {
+    use Data::Dumper; print Dumper(\%match);
+    if ($match{id}) {
         my $title;
-        print "Checking title for youtube $id\n";
-        my $response = $self->{ua}->get("https://noembed.com/embed?url=https://www.youtube.com/watch?v=${id}");
+        print "Checking title for youtube $match{id}\n";
+        my $response = $self->{ua}->get("https://noembed.com/embed?url=https://www.youtube.com/watch?v=$match{id}");
         if ($response->is_success) {
             my $raw = $response->decoded_content;
             my $content;
             eval {$content = decode_json(Encode::encode_utf8($raw))};
             if ($content and $content->{title}) {
-                if ($short) {
-                    $reply .= "https://www.youtube.com/watch?v=$id\n";
+                if ($match{short}) {
+                    $reply .= "https://www.youtube.com/watch?v=$match{id}\n";
                 }
                 $reply .= $content->{title};
                 return $reply;
